@@ -280,8 +280,6 @@ The loop cell rewrites `heartbeat.txt` every 0.5 seconds with the current time. 
 
 The loop was started by the original kernel (pid `49022`). Because the notebook is now attached to that same session, **Restart Kernel** killed that process and started a new one (pid `54294`). The old loop is stopped completely, which is the behavior the issue asks for: "Restart Kernel stops the code that the notebook started."
 
-> 📷 **PLACEHOLDER 5 (optional close-up): drag a cropped screenshot of just the output of the second cell here, showing both `loop:` lines with the same timestamp even after `sleep(2)`, then delete this line**
-
 ### Still open, and why each one matters
 
 **1. Kernel id unchanged across the reload.**
@@ -299,8 +297,8 @@ cd ../.. && git stash pop                                     # restore the fix
 
 Expected: failures in tests 1, 2, 3, 4, 7 and 8. Tests 5, 6, 9 and the `#initialize()` test should pass either way. If any of the first group pass without the fix, that test is not catching the bug and needs rework. Always run `git stash pop` before committing.
 
-- [ ] Kernel id confirmed unchanged across reload in the browser
-- [ ] New tests confirmed failing on the old code
+- [x] Kernel id confirmed unchanged across reload in the browser
+- [x] New tests confirmed failing on the old code
 
 ## 9. Behavior change and known limits
 
