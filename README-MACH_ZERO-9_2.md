@@ -103,7 +103,7 @@ We reproduced this on our own machine. The screenshot below was taken right afte
 
 🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
 
-[![Click to watch the bug reproduction](docs/media/before-two-kernels.png)](docs/media/bug-reproduction.mp4)
+https://github.com/user-attachments/assets/b75ed0aa-1b6c-476e-9a68-4fba05145398
 
 The original, full-quality recording is in our [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL).
 
@@ -305,7 +305,7 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 
 ![Two kernels for one notebook](docs/media/before-two-kernels.png)
 
-[![Bug reproduction video](docs/media/bug-thumbnail.png)](docs/media/bug-reproduction.mp4)
+https://github.com/user-attachments/assets/10c011f2-553d-4c2a-bc4e-21f56177f0e0
 
 Full-quality originals: [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL)
 
