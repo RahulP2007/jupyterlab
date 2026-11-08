@@ -103,7 +103,7 @@ We reproduced this on our own machine. The screenshot below was taken right afte
 
 🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
 
-[![Click to watch the bug reproduction]](docs/media/bug-reproduction.mp4)
+[![Click to watch the bug reproduction](docs/media/before-two-kernels.png)](docs/media/bug-reproduction.mp4)
 
 The original, full-quality recording is in our [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL).
 
