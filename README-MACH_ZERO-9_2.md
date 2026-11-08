@@ -300,8 +300,8 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 
 | File                                                                     | What it shows                                                     |
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4)     | Screen recording (about 80 s) of the bug being reproduced locally |
-| [`docs/media/before-two-kernels.png`](docs/media/before-two-kernels.png) | Two kernels listed for one `loop.ipynb` while the loop is running |
+| "https://github.com/user-attachments/assets/736195ed-75f8-4c36-beaa-1b2fe5d8a1c5"    | Screen recording (about 80 s) of the bug being reproduced locally |
+| "https://github.com/user-attachments/assets/10c011f2-553d-4c2a-bc4e-21f56177f0e0"    | Two kernels listed for one `loop.ipynb` while the loop is running |
 
 <img width="1917" height="851" alt="before-two-kernels" src="https://github.com/user-attachments/assets/736195ed-75f8-4c36-beaa-1b2fe5d8a1c5" />
 
