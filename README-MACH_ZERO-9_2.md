@@ -224,7 +224,7 @@ jlpm jest -i test/sessioncontext.spec.ts -t "existing session on the path"
 
 This confirms the session-reuse scenarios pass with the modified implementation.
 
-> 📷 **PLACEHOLDER 1: drag `test-targeted-regression.jpeg` here, then delete this line**
+<img width="1280" height="137" alt="test-targeted-regression" src="https://github.com/user-attachments/assets/b36d9f08-820b-4a37-8cce-6b8bccc99ee3" />
 
 #### 2. Complete `SessionContext` test suite
 
@@ -238,7 +238,7 @@ jlpm jest -i test/sessioncontext.spec.ts
 
 All 59 tests pass, including the new tests and the pre-existing ones.
 
-> 📷 **PLACEHOLDER 2: drag `test-full-suite.jpeg` here, then delete this line**
+<img width="888" height="178" alt="test-full-suite" src="https://github.com/user-attachments/assets/d603063f-ae17-4b90-b6bc-5332fc9e12c3" />
 
 ### Completed
 
@@ -254,11 +254,13 @@ All 59 tests pass, including the new tests and the pre-existing ones.
 
 We rebuilt JupyterLab from source with the fix (`jupyter lab --dev-mode --extensions-in-dev-mode --watch`) and ran the same scenario as the issue.
 
-> 🎥 **PLACEHOLDER 3 (video): drag `after-fix-demo.mp4` here, then delete this line.** About 50 seconds: JupyterLab launched from the dev build, `loop.ipynb` run, and the result cell.
+https://github.com/user-attachments/assets/34b4a462-a230-417c-a0bb-bd56c308e119
+
+About 50 seconds: JupyterLab launched from the dev build, `loop.ipynb` run, and the result cell.
 
 **What we saw after the fix**
 
-> 📷 **PLACEHOLDER 4: drag `after-fix-one-kernel.jpeg` here, then delete this line**
+<img width="1280" height="810" alt="after-fix-one-kernel" src="https://github.com/user-attachments/assets/7a968dc3-0fcb-4c2c-81c7-c8fabfdceb2b" />
 
 | | Before the fix (bug) | After the fix |
 | --- | --- | --- |
@@ -366,15 +368,15 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 | [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4)     | Screen recording (about 80 s) of the bug being reproduced locally |
 | [`docs/media/before-two-kernels.png`](docs/media/before-two-kernels.png) | Two kernels listed for one `loop.ipynb` while the loop is running |
 
-![Two kernels for one notebook](docs/media/before-two-kernels.png)
+<img width="1917" height="851" alt="before-two-kernels" src="https://github.com/user-attachments/assets/44b32aa1-da87-48d0-bb64-9832d1a0741a" />
 
 https://github.com/user-attachments/assets/10c011f2-553d-4c2a-bc4e-21f56177f0e0
 
 ### After the fix
 
-> 🎥 **PLACEHOLDER (video): drag `after-fix-demo.mp4` here, then delete this line**
+https://github.com/user-attachments/assets/e93457c4-c2a4-4cdb-b19c-dc538d2db2fa
 
-> 📷 **PLACEHOLDER (image): drag `after-fix-one-kernel.jpeg` here, then delete this line**
+<img width="1280" height="810" alt="after-fix-one-kernel" src="https://github.com/user-attachments/assets/f6c4f56d-fd9d-4f93-8546-d98c320f5778" />
 
 Full-quality originals: [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL)
 
