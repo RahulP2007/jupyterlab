@@ -777,7 +777,38 @@ export class SessionContext implements ISessionContext {
   }
 
   /**
+   * Connect to the session on the current path, if there is one.
+   */
+  private async _connectToPathSession(): Promise<void> {
+    if (this._session) {
+      return;
+    }
+    const manager = this.sessionManager;
+    try {
+      await manager.refreshRunning();
+    } catch (err) {
+      console.warn('Could not refresh the running sessions.', err);
+      return;
+    }
+    const model = find(manager.running(), item => item.path === this._path);
+    // The state may have changed while the sessions were refreshed.
+    if (!model || this._session || this.isDisposed) {
+      return;
+    }
+    try {
+      this._handleNewSession(manager.connectTo({ model }));
+    } catch (err) {
+      void this._handleSessionError(err as ServerConnection.ResponseError);
+      throw err;
+    }
+  }
+
+  /**
    * Change the current kernel associated with the session.
+   *
+   * #### Notes
+   * If there is no session, an existing session on the current path is used,
+   * so that a path does not end up with two sessions.
    */
   async changeKernel(
     options: Partial<Kernel.IModel> = {}
@@ -789,6 +820,7 @@ export class SessionContext implements ISessionContext {
     // and start its kernel first to ensure consistent
     // ordering.
     await this._initStarted.promise;
+    await this._connectToPathSession();
     return this._changeKernel(options);
   }
 
@@ -1001,7 +1033,11 @@ export class SessionContext implements ISessionContext {
       // Update the name in case it has changed since we launched the session.
       await session.setName(this._name);
 
-      if (this._session && !this._isTerminating) {
+      if (
+        this._session &&
+        this._session.id !== session.id &&
+        !this._isTerminating
+      ) {
         await this._shutdownSession();
       }
       return this._handleNewSession(session);

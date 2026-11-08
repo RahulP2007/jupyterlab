@@ -663,6 +663,197 @@ describe('@jupyterlab/apputils', () => {
         // could be either, just make sure it isn't the original kernel.
         expect([results[0], results[1]]).toContain(lastKernel);
       });
+
+      const initializeWithoutKernel = async () => {
+        sessionContext.kernelPreference = {
+          ...sessionContext.kernelPreference,
+          shouldStart: false,
+          shouldReuse: false
+        };
+        await sessionContext.initialize();
+      };
+
+      const sessionsOnPath = async () => {
+        await sessionManager.refreshRunning();
+        return Array.from(sessionManager.running()).filter(
+          model => model.path === path
+        );
+      };
+
+      it('should change the kernel of an existing session on the path', async () => {
+        const other = await sessionManager.startNew({
+          name: '',
+          path,
+          type: 'test'
+        });
+        const originalKernelId = other.kernel?.id;
+        await initializeWithoutKernel();
+        expect(sessionContext.session).toBeNull();
+
+        const name = specsManager.specs!.default;
+        const kernel = await sessionContext.changeKernel({ name });
+
+        expect(await sessionsOnPath()).toHaveLength(1);
+        expect(sessionContext.session?.id).toBe(other.id);
+        expect(kernel?.name).toBe(name);
+        expect(kernel?.id).not.toBe(originalKernelId);
+        other.dispose();
+      });
+
+      it('should keep the kernel when it is the kernel of the existing session', async () => {
+        const other = await sessionManager.startNew({
+          name: '',
+          path,
+          type: 'test'
+        });
+        const { id, name } = other.kernel!;
+        await initializeWithoutKernel();
+
+        await sessionContext.changeKernel({ id, name });
+
+        expect(await sessionsOnPath()).toHaveLength(1);
+        expect(sessionContext.session?.kernel?.id).toBe(id);
+        other.dispose();
+      });
+
+      it('should find a session on the path that is not in the cached list', async () => {
+        const model = await SessionAPI.startSession({
+          name: '',
+          path,
+          type: 'test'
+        });
+        await initializeWithoutKernel();
+
+        await sessionContext.changeKernel({
+          name: specsManager.specs!.default
+        });
+
+        expect(await sessionsOnPath()).toHaveLength(1);
+        expect(sessionContext.session?.id).toBe(model.id);
+      });
+
+      it('should use a single session for concurrent requests', async () => {
+        const other = await sessionManager.startNew({
+          name: '',
+          path,
+          type: 'test'
+        });
+        await initializeWithoutKernel();
+
+        const name = specsManager.specs!.default;
+        await Promise.all([
+          sessionContext.changeKernel({ name }),
+          sessionContext.changeKernel({ name })
+        ]);
+
+        expect(await sessionsOnPath()).toHaveLength(1);
+        expect(sessionContext.session?.id).toBe(other.id);
+        other.dispose();
+      });
+
+      it('should start a session if there is none on the path', async () => {
+        await initializeWithoutKernel();
+
+        const kernel = await sessionContext.changeKernel({
+          name: specsManager.specs!.default
+        });
+
+        expect(kernel).not.toBeNull();
+        expect(await sessionsOnPath()).toHaveLength(1);
+      });
+
+      it('should not reuse a session on a different path', async () => {
+        const other = await sessionManager.startNew({
+          name: '',
+          path: UUID.uuid4(),
+          type: 'test'
+        });
+        await initializeWithoutKernel();
+
+        await sessionContext.changeKernel({
+          name: specsManager.specs!.default
+        });
+
+        expect(sessionContext.session?.id).not.toBe(other.id);
+        await sessionManager.refreshRunning();
+        const ids = Array.from(sessionManager.running()).map(m => m.id);
+        expect(ids).toContain(other.id);
+        await other.shutdown();
+        other.dispose();
+      });
+
+      it('should leave a context created afterwards connected to the new kernel', async () => {
+        const other = await sessionManager.startNew({
+          name: '',
+          path,
+          type: 'test'
+        });
+        await initializeWithoutKernel();
+        const kernel = await sessionContext.changeKernel({
+          name: specsManager.specs!.default
+        });
+
+        const reloaded = new SessionContext({
+          kernelManager,
+          path,
+          sessionManager,
+          specsManager,
+          kernelPreference: { shouldStart: false }
+        });
+        try {
+          await reloaded.initialize();
+          expect(reloaded.session?.kernel?.id).toBe(kernel?.id);
+        } finally {
+          reloaded.dispose();
+          other.dispose();
+        }
+      });
+
+      it('should handle an error when connecting to the session on the path', async () => {
+        const mockManager = new SessionManager({ kernelManager });
+        sessionContext = new SessionContext({
+          kernelManager,
+          path,
+          sessionManager: mockManager,
+          specsManager,
+          kernelPreference: { shouldStart: false, shouldReuse: false }
+        });
+        await sessionContext.initialize();
+        (mockManager as any).running = () => [{ path }];
+        (mockManager as any).connectTo = () => {
+          throw new ServerConnection.ResponseError(
+            new Response(null, { status: 500, statusText: 'mock error' })
+          );
+        };
+
+        let caught = false;
+        const promise = sessionContext
+          .changeKernel({ name: specsManager.specs!.default })
+          .catch(() => {
+            caught = true;
+          });
+        await Promise.all([promise, acceptDialog()]);
+        expect(caught).toBe(true);
+        expect(sessionContext.session).toBeNull();
+      });
+
+      it('should still start a kernel if the running sessions cannot be refreshed', async () => {
+        await initializeWithoutKernel();
+        const refresh = jest
+          .spyOn(sessionManager, 'refreshRunning')
+          .mockRejectedValueOnce(new Error('offline'));
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        try {
+          const kernel = await sessionContext.changeKernel({
+            name: specsManager.specs!.default
+          });
+          expect(kernel).not.toBeNull();
+        } finally {
+          refresh.mockRestore();
+          warn.mockRestore();
+        }
+      });
     });
 
     describe('#shutdown', () => {

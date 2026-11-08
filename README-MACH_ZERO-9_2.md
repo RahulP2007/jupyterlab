@@ -99,9 +99,9 @@ loop: pid 839629 at 1793698560.6
 
 We reproduced this on our own machine. The screenshot below was taken right after step 5 and the reload. The loop cell is still busy (`[*]`), yet the **Kernels** panel on the left lists **two** kernels for the same `loop.ipynb` (`98618c3a` and `2b3309db`). This is the duplicate session: one notebook, two kernels, and the toolbar still shows a single "Python 3 (ipykernel)".
 
-![Two kernels for one notebook in the Running panel](docs/media/before-two-kernels.png)
+> 📷 **PLACEHOLDER 8: drag `before-two-kernels.png` here, then delete this line**
 
-🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
+🎥 Full screen recording of the reproduction (about 80 seconds):
 
 https://github.com/user-attachments/assets/b75ed0aa-1b6c-476e-9a68-4fba05145398
 
@@ -207,6 +207,39 @@ Tests 1, 2, 3, 4, 7 and 8 should fail on the old code. Tests 5, 6, 9 and the `#i
 
 We verified the fix at four levels: automated tests, static checks, a build, and a manual run in the browser.
 
+### Testing and validation results
+
+We added automated tests to `packages/apputils/test/sessioncontext.spec.ts` to validate the session-reuse fix and to make sure existing JupyterLab behavior is unaffected.
+
+#### 1. Targeted regression tests
+
+We first ran only the tests about reusing an existing session on the same notebook path.
+
+```bash
+cd packages/apputils
+jlpm jest -i test/sessioncontext.spec.ts -t "existing session on the path"
+```
+
+**Result:** 1 suite passed, **2 tests passed**, 57 skipped (skipped only because the `-t` filter excluded them).
+
+This confirms the session-reuse scenarios pass with the modified implementation.
+
+> 📷 **PLACEHOLDER 1: drag `test-targeted-regression.jpeg` here, then delete this line**
+
+#### 2. Complete `SessionContext` test suite
+
+We then ran the whole file to check that nothing that worked before is broken.
+
+```bash
+jlpm jest -i test/sessioncontext.spec.ts
+```
+
+**Result:** 1 suite passed, **59 of 59 tests passed**, 0 failed, 0 snapshots, 19.414 s.
+
+All 59 tests pass, including the new tests and the pre-existing ones.
+
+> 📷 **PLACEHOLDER 2: drag `test-full-suite.jpeg` here, then delete this line**
+
 ### Completed
 
 | Check                                        | Result                                                                          |
@@ -216,6 +249,36 @@ We verified the fix at four levels: automated tests, static checks, a build, and
 | ESLint and Prettier                          | Clean                                                                           |
 | Dev build                                    | Compiled and launched                                                           |
 | Manual browser run (same steps as the issue) | **One session** for `loop.ipynb`, and the loop **stopped** after Restart Kernel |
+
+### Manual verification after the fix
+
+We rebuilt JupyterLab from source with the fix (`jupyter lab --dev-mode --extensions-in-dev-mode --watch`) and ran the same scenario as the issue.
+
+> 🎥 **PLACEHOLDER 3 (video): drag `after-fix-demo.mp4` here, then delete this line.** About 50 seconds: JupyterLab launched from the dev build, `loop.ipynb` run, and the result cell.
+
+**What we saw after the fix**
+
+> 📷 **PLACEHOLDER 4: drag `after-fix-one-kernel.jpeg` here, then delete this line**
+
+| | Before the fix (bug) | After the fix |
+| --- | --- | --- |
+| Entries for `loop.ipynb` in the **Kernels** panel | **2** (e.g. `98618c3a` and `2b3309db`) | **1** (`9b76d8...`) |
+| Running sessions count in the status bar | 2 | 1 |
+| `this kernel: pid` (the notebook's kernel after Restart) | New pid | New pid (`54294`) |
+| `loop:` pid in `heartbeat.txt` | Old pid, still alive | Old pid (`49022`), no longer alive |
+| `heartbeat.txt` timestamp across `sleep(2)` | **Changes** (`...558.6` to `...560.6`) | **Does not change** (`1794110205.5` both times) |
+
+**Why there is now only one kernel entry**
+
+Before the fix, choosing a kernel in a notebook opened with "Notebook (no kernel)" started a brand-new server session, while the session that already existed for `loop.ipynb` kept running. That is why the Kernels panel listed two entries for one file. With the fix, `changeKernel()` first looks for a session on the notebook's path and attaches to it, so the kernel is changed inside that session. No second session is created, and the panel lists a single `loop.ipynb` kernel.
+
+**Why the unchanged timestamp proves the old process stopped**
+
+The loop cell rewrites `heartbeat.txt` every 0.5 seconds with the current time. If that loop were still running anywhere, two reads 2 seconds apart (the second cell reads the file, runs `time.sleep(2)`, then reads it again) would show different timestamps, as in the buggy run (`1793698558.6` then `1793698560.6`). After the fix both reads show `1794110205.5`: the file was not written during those 2 seconds, so nothing is updating it.
+
+The loop was started by the original kernel (pid `49022`). Because the notebook is now attached to that same session, **Restart Kernel** killed that process and started a new one (pid `54294`). The old loop is stopped completely, which is the behavior the issue asks for: "Restart Kernel stops the code that the notebook started."
+
+> 📷 **PLACEHOLDER 5 (optional close-up): drag a cropped screenshot of just the output of the second cell here, showing both `loop:` lines with the same timestamp even after `sleep(2)`, then delete this line**
 
 ### Still open, and why each one matters
 
@@ -300,12 +363,18 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 
 | File                                                                     | What it shows                                                     |
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4)     | Screen recording (about 80 s) of the bug being reproduced locally |
-| [`docs/media/before-two-kernels.png`](docs/media/before-two-kernels.png) | Two kernels listed for one `loop.ipynb` while the loop is running |
+| `bug-reproduction.mp4`     | Screen recording (about 80 s) of the bug being reproduced locally |
+| `before-two-kernels.png` | Two kernels listed for one `loop.ipynb` while the loop is running |
 
-![Two kernels for one notebook](docs/media/before-two-kernels.png)
+> 📷 **PLACEHOLDER 9: drag `before-two-kernels.png` here, then delete this line**
 
 https://github.com/user-attachments/assets/10c011f2-553d-4c2a-bc4e-21f56177f0e0
+
+### After the fix
+
+> 🎥 **PLACEHOLDER (video): drag `after-fix-demo.mp4` here, then delete this line**
+
+> 📷 **PLACEHOLDER (image): drag `after-fix-one-kernel.jpeg` here, then delete this line**
 
 Full-quality originals: [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL)
 
