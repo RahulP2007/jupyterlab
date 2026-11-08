@@ -8,12 +8,12 @@
 
 ## Team
 
-| Name | Role |
-| --- | --- |
+| Name                   | Role        |
+| ---------------------- | ----------- |
 | **Sambhram Sattigeri** | Team leader |
-| Rahul P | Member |
-| Rohith M | Member |
-| Rahat Jakati | Member |
+| Rahul P                | Member      |
+| Rohith M               | Member      |
+| Rahat Jakati           | Member      |
 
 ---
 
@@ -85,7 +85,7 @@ We reproduced the issue locally before changing any code. Steps (from the issue)
 7. Restart the kernel from the toolbar and confirm.
 8. Run the second cell.
 
-**Buggy result:** the second cell shows the loop is still running in a *different* process from the notebook's kernel.
+**Buggy result:** the second cell shows the loop is still running in a _different_ process from the notebook's kernel.
 
 ```
 this kernel: pid 839814
@@ -103,7 +103,7 @@ We reproduced this on our own machine. The screenshot below was taken right afte
 
 🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
 
-[![Click to watch the bug reproduction](docs/media/bug-thumbnail.png)](docs/media/bug-reproduction.mp4)
+[![Click to watch the bug reproduction]](docs/media/bug-reproduction.mp4)
 
 The original, full-quality recording is in our [Google Drive folder](https://drive.google.com/drive/folders/1eDxs0VYv8Bpk513SW8bP1jB5QzrRf4kL).
 
@@ -111,20 +111,20 @@ The original, full-quality recording is in our [Google Drive folder](https://dri
 
 Three pieces of code combine to cause the bug (all in `packages/`):
 
-| Location | What it does | Role in the bug |
-| --- | --- | --- |
-| `notebook-extension/src/index.ts` | The "Notebook (no kernel)" menu item passes `shouldStart: false, shouldReuse: false` | The context deliberately does not connect to an existing session |
-| `apputils/src/sessioncontext.tsx` → `changeKernel()` / `_changeKernel()` | Only reuses `this._session`; with none, it calls `sessionManager.startNew()` | Creates a **second** session on the same path |
-| `apputils/src/sessioncontext.tsx` → `_initialize()` | After reload, connects to the first session the server lists for the path | Picks the **older** session, so the notebook silently switches kernels |
+| Location                                                                 | What it does                                                                         | Role in the bug                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `notebook-extension/src/index.ts`                                        | The "Notebook (no kernel)" menu item passes `shouldStart: false, shouldReuse: false` | The context deliberately does not connect to an existing session       |
+| `apputils/src/sessioncontext.tsx` → `changeKernel()` / `_changeKernel()` | Only reuses `this._session`; with none, it calls `sessionManager.startNew()`         | Creates a **second** session on the same path                          |
+| `apputils/src/sessioncontext.tsx` → `_initialize()`                      | After reload, connects to the first session the server lists for the path            | Picks the **older** session, so the notebook silently switches kernels |
 
 ## 5. Options we considered
 
-| Option | Idea | Fixes the cause? | Keeps #18856? | Size | Main risk |
-| --- | --- | :---: | :---: | --- | --- |
-| **A (chosen)** | Attach to the existing session, then change its kernel | Yes | Yes | ~20 lines | Replaces a same-name kernel, losing running state |
-| **B** | A, but leave the kernel alone if the names match | Yes | Yes | A bit more than A | Changes what **Select** means (a product decision) |
-| **C** | Make reload pick a session by rule (newest, active) | No | Yes | Medium | Duplicates remain; any rule can guess wrong |
-| **D** | Remove `shouldReuse: false` from the menu item | No | No | One line | Undoes PR #18856, a deliberate feature |
+| Option         | Idea                                                   | Fixes the cause? | Keeps #18856? | Size              | Main risk                                          |
+| -------------- | ------------------------------------------------------ | :--------------: | :-----------: | ----------------- | -------------------------------------------------- |
+| **A (chosen)** | Attach to the existing session, then change its kernel |       Yes        |      Yes      | ~20 lines         | Replaces a same-name kernel, losing running state  |
+| **B**          | A, but leave the kernel alone if the names match       |       Yes        |      Yes      | A bit more than A | Changes what **Select** means (a product decision) |
+| **C**          | Make reload pick a session by rule (newest, active)    |        No        |      Yes      | Medium            | Duplicates remain; any rule can guess wrong        |
+| **D**          | Remove `shouldReuse: false` from the menu item         |        No        |      No       | One line          | Undoes PR #18856, a deliberate feature             |
 
 **Why A:** it fixes the bug where it happens (at creation time), reuses code that already exists, and keeps the "Notebook (no kernel)" feature working as designed. B is our fallback if the maintainers want it. C could be a later safety net. D was rejected because it trades one bug for another.
 
@@ -185,17 +185,17 @@ Shared helpers:
 
 ### New tests in `#changeKernel()` (9)
 
-| # | Test | Why it matters |
-| --- | --- | --- |
-| 1 | Changes the kernel of an existing session on the path | The issue itself: the old code made a second session |
-| 2 | Keeps the kernel when it is the existing session's own | Selecting the same kernel creates no new session or kernel |
-| 3 | Finds a session not in the cached list | Proves the list is refreshed, not trusted stale |
-| 4 | Uses one session for concurrent requests | Guards the concurrency requirement |
-| 5 | Starts a session if none exists on the path | The fallback to the old "start new" path still works |
-| 6 | Does not reuse a session on a different path | The fix cannot hijack another notebook's session |
-| 7 | A context created afterwards connects to the new kernel | The issue's reload scenario |
-| 8 | Handles an error when connecting to the path session | Error dialog shown, no half-connected state |
-| 9 | Still starts a kernel if running sessions cannot be refreshed | A network blip degrades to the old behavior |
+| #   | Test                                                          | Why it matters                                             |
+| --- | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1   | Changes the kernel of an existing session on the path         | The issue itself: the old code made a second session       |
+| 2   | Keeps the kernel when it is the existing session's own        | Selecting the same kernel creates no new session or kernel |
+| 3   | Finds a session not in the cached list                        | Proves the list is refreshed, not trusted stale            |
+| 4   | Uses one session for concurrent requests                      | Guards the concurrency requirement                         |
+| 5   | Starts a session if none exists on the path                   | The fallback to the old "start new" path still works       |
+| 6   | Does not reuse a session on a different path                  | The fix cannot hijack another notebook's session           |
+| 7   | A context created afterwards connects to the new kernel       | The issue's reload scenario                                |
+| 8   | Handles an error when connecting to the path session          | Error dialog shown, no half-connected state                |
+| 9   | Still starts a kernel if running sessions cannot be refreshed | A network blip degrades to the old behavior                |
 
 ### New test in `#initialize()` (1)
 
@@ -209,12 +209,12 @@ We verified the fix at four levels: automated tests, static checks, a build, and
 
 ### Completed
 
-| Check | Result |
-| --- | --- |
-| Jest suite for `sessioncontext.spec.ts` | **59/59 passing**, including 12 `#changeKernel()` tests |
-| TypeScript compile (`tsc`) | Clean |
-| ESLint and Prettier | Clean |
-| Dev build | Compiled and launched |
+| Check                                        | Result                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------- |
+| Jest suite for `sessioncontext.spec.ts`      | **59/59 passing**, including 12 `#changeKernel()` tests                         |
+| TypeScript compile (`tsc`)                   | Clean                                                                           |
+| ESLint and Prettier                          | Clean                                                                           |
+| Dev build                                    | Compiled and launched                                                           |
 | Manual browser run (same steps as the issue) | **One session** for `loop.ipynb`, and the loop **stopped** after Restart Kernel |
 
 ### Still open, and why each one matters
@@ -298,9 +298,9 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 
 ## 12. Demo media
 
-| File | What it shows |
-| --- | --- |
-| [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4) | Screen recording (about 80 s) of the bug being reproduced locally |
+| File                                                                     | What it shows                                                     |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4)     | Screen recording (about 80 s) of the bug being reproduced locally |
 | [`docs/media/before-two-kernels.png`](docs/media/before-two-kernels.png) | Two kernels listed for one `loop.ipynb` while the loop is running |
 
 ![Two kernels for one notebook](docs/media/before-two-kernels.png)
