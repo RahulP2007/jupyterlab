@@ -99,9 +99,9 @@ loop: pid 839629 at 1793698560.6
 
 We reproduced this on our own machine. The screenshot below was taken right after step 5 and the reload. The loop cell is still busy (`[*]`), yet the **Kernels** panel on the left lists **two** kernels for the same `loop.ipynb` (`98618c3a` and `2b3309db`). This is the duplicate session: one notebook, two kernels, and the toolbar still shows a single "Python 3 (ipykernel)".
 
-![Two kernels for one notebook in the Running panel](docs/media/before-two-kernels.png)
+<img width="1917" height="851" alt="before-two-kernels" src="https://github.com/user-attachments/assets/de4648ef-5671-479d-82cb-a0aab4fa3170" />
 
-🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
+🎥 Full screen recording of the reproduction (about 80 seconds): 
 
 https://github.com/user-attachments/assets/b75ed0aa-1b6c-476e-9a68-4fba05145398
 
@@ -303,7 +303,7 @@ jupyter lab --dev-mode --extensions-in-dev-mode
 | [`docs/media/bug-reproduction.mp4`](docs/media/bug-reproduction.mp4)     | Screen recording (about 80 s) of the bug being reproduced locally |
 | [`docs/media/before-two-kernels.png`](docs/media/before-two-kernels.png) | Two kernels listed for one `loop.ipynb` while the loop is running |
 
-![Two kernels for one notebook](docs/media/before-two-kernels.png)
+<img width="1917" height="851" alt="before-two-kernels" src="https://github.com/user-attachments/assets/736195ed-75f8-4c36-beaa-1b2fe5d8a1c5" />
 
 https://github.com/user-attachments/assets/10c011f2-553d-4c2a-bc4e-21f56177f0e0
 
