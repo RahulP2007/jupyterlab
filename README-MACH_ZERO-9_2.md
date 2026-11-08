@@ -101,7 +101,7 @@ We reproduced this on our own machine. The screenshot below was taken right afte
 
 <img width="1917" height="851" alt="before-two-kernels" src="https://github.com/user-attachments/assets/de4648ef-5671-479d-82cb-a0aab4fa3170" />
 
-🎥 Full screen recording of the reproduction (about 80 seconds): [docs/media/bug-reproduction.mp4](docs/media/bug-reproduction.mp4)
+🎥 Full screen recording of the reproduction (about 80 seconds): 
 
 https://github.com/user-attachments/assets/b75ed0aa-1b6c-476e-9a68-4fba05145398
 
